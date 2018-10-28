@@ -15,7 +15,7 @@ public class DictionaryManager {
         dictionary.put("else","اگرنه");
         dictionary.put("while","تاوقتی");
         dictionary.put("for","برای");
-        dictionary.put("System.out.println","سطربعدبنویس");
+        dictionary.put("SystemOutPrintln","سطربعدبنویس");
         dictionary.put("int","عددصحیح");
         dictionary.put("float","ممیزشناور");
         dictionary.put("double","اعشاردوتایی");
@@ -29,6 +29,7 @@ public class DictionaryManager {
         dictionary.put("private","خصوصی");
         dictionary.put("static","استاتیک");
         dictionary.put("void","خالی");
+        dictionary.put("new","جدید");
         dictionary.put("main","اصلی");
         dictionary.put("args","آرگومانها");
 

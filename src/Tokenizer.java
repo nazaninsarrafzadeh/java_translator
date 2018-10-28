@@ -16,45 +16,49 @@ public class Tokenizer {
     private String keywordValue="";
     private String translatedId;
 
+    public String tokenize(String lineOfCode) {
 
-    public String tokenize(String lineOfCode){
+        for (int i = 0; i < lineOfCode.length(); i++) {
+            Main.token.setCol(i - 1);
+            nextChar = lineOfCode.charAt(i);
+         //   System.out.println(nextChar+"  :");
 
-        for (int i = 0; i <lineOfCode.length() ; i++) {
-            Main.token.setCol(i-1);
-            nextChar=lineOfCode.charAt(i);
-            if (Main.cmSuspect){
-                for (int j = i; j <lineOfCode.length() ; j++) {
+            if (Main.cmSuspect) {
+                for (int j = i; j < lineOfCode.length(); j++) {
                     stringBuilder.append(lineOfCode.charAt(j));
                 }
-                if (lineOfCode.charAt(lineOfCode.length()-1)=='/' && lineOfCode.charAt(lineOfCode.length()-2)=='*'){
-                    Main.cmSuspect=false;
+                if (lineOfCode.charAt(lineOfCode.length() - 1) == '/' && lineOfCode.charAt(lineOfCode.length() - 2) == '*') {
+                    Main.cmSuspect = false;
                 }
                 break;
             }
+//            else if ((i<lineOfCode.length()-1) && (nextChar==' ' && lineOfCode.charAt(i+1)==' ')){
+//               // System.out.println("inja");
+//                concate();
+//
+//            }
 
-            else if (!isDelimeter(nextChar) && !isOperator(nextChar)){
-
-                word.add(nextChar);
+            else if ((!isDelimeter(nextChar) && !isOperator(nextChar)) ) {
+//                if(nextChar==' '){
+//                    word.add('^');
+//                  //  stringBuilder.append(nextChar);
+//                }else
+                    word.add(nextChar);
             }
-
             else if (isOperator(nextChar)) {
 
-                if (nextChar=='/' && lineOfCode.charAt(i+1)=='*'){
-                    Main.cmSuspect=true;
-                    for (int j = i; j <lineOfCode.length() ; j++) {
+                if (nextChar == '/' && lineOfCode.charAt(i + 1) == '*') {
+                    Main.cmSuspect = true;
+                    for (int j = i; j < lineOfCode.length(); j++) {
                         stringBuilder.append(lineOfCode.charAt(j));
                     }
                     break;
-                }
-                else if (nextChar=='/' && lineOfCode.charAt(i+1)=='/'){
-                    for (int j = i; j <lineOfCode.length() ; j++) {
+                } else if (nextChar == '/' && lineOfCode.charAt(i + 1) == '/') {
+                    for (int j = i; j < lineOfCode.length(); j++) {
                         stringBuilder.append(lineOfCode.charAt(j));
                     }
                     break;
-                }
-
-                else {
-                    //  System.out.println("are");
+                } else {
                     concate();
                 }
 
@@ -62,29 +66,34 @@ public class Tokenizer {
 
             else if (isDelimeter(nextChar) && !isOperator(nextChar)) {
 
+                if (nextChar=='{' || nextChar=='}'){
+                    Main.count++;
+                }
                 concate();
             }
 
-
+            else {
+               // System.out.println("onja");
+                word.add(nextChar);
+            }
         }
-        //    System.out.println(stringBuilder.toString());
+
         return stringBuilder.toString();
     }
 
-    private void concate(){
+    private void concate() {
         if (!word.isEmpty()) {
 
-            String ourWord=word.toString().replaceAll(",","").replace(" ","").replace("[","").replace("]","");
-
-        //    System.out.println(ourWord);
-            if(isString(ourWord)){
-
+            String ourWord = word.toString().replaceAll(",", "").replace(" ","").replace("[", "").replace("]", "");
+            if (isString(ourWord)) {
+                ourWord= ourWord.replace('^',' ');
                 stringIsValid(ourWord);
                 stringBuilder.append(ourWord);
-            }
-
-            else {
-                prepareToTranslate();
+            } else {
+                System.out.println(ourWord);
+                //   ourWord= ourWord.replace('^',' ');
+            //    System.out.println(ourWord);
+                prepareToTranslate(ourWord);
                 stringBuilder.append(translated);
             }
         }
@@ -103,40 +112,54 @@ public class Tokenizer {
                     isString=true;
             }
         }
-        if (isString){
-            System.out.println("true");
-        }
-
         return isString;
     }
 
     private void stringIsValid(String word) {
-
         for (int i = 2; i < word.length()-1; i++) {
-
             if((word.charAt(i-1)=='\\' && (word.charAt(i)!='t' && word.charAt(i)!='n' && word.charAt(i)!='r' && word.charAt(i)!='"' && word.charAt(i)!='\\'))  ||
                     ( word.charAt(i-1)!='\\' && word.charAt(i)=='"')) {
-                if(i>2) {
+                if(i==3) {
                     if((word.charAt(i-2)!='\\' && word.charAt(i-1)!='\\')||((word.charAt(i-2)!='\\' && word.charAt(i-1)=='\\'))){
                         Main.okStr = false;
-                        System.out.println(word);
-                        System.out.println("Error: incorrect String");
+                     //   System.out.println(word);
+
+                    }
+                }
+                else if(i>3){
+                    int j=i-3,l=0;
+                    while (word.charAt(j)=='\\') {
+                        j++;l++;
+                    }
+                    if(l%2==1){
+                        Main.okStr = false;
+                      //  System.out.println(word);
                     }
                 }
                 else{
                     Main.okStr = false;
-                    System.out.println(word);
-                    System.out.println("Error: incorrect String");
+                  //  System.out.println(word);
+
                 }
             }
         }
     }
 
-    private boolean isDelimeter(char nextChar){
-        if (nextChar == ' ' || nextChar == ',' || nextChar == ';' || nextChar == '>' ||
-                nextChar == '<' || nextChar == '=' || nextChar == '(' || nextChar == ')' ||
+
+    private boolean isDelimeter(char nextChar) {
+
+        if (nextChar == ';' || nextChar == '>' || nextChar==',' || nextChar==' ' || nextChar =='\t' ||
+                nextChar == '<' || nextChar == '=' || nextChar == '(' || nextChar == ')' || nextChar=='.' |
                 nextChar == '[' || nextChar == ']' || nextChar == '{' || nextChar == '}')
             return true;
+        return false;
+    }
+
+    private boolean isInString(String word) {
+
+        if (word.charAt(1) == '"') {
+            return true;
+        }
         return false;
     }
 
@@ -179,23 +202,28 @@ public class Tokenizer {
         }
         return false;
     }
+    int gj;
 
     private boolean identifierIsValid(String id){
-        if (!Character.isDigit(id.charAt(0)) && !id.contains("-") && !id.contains(","))
+        if (!Character.isDigit(id.charAt(0)) && id.charAt(0)!='-'  && !id.contains("-") && !id.contains("."))
 
+      //  if (id.matches("^([a-zA-Z_$][a-zA-Z\\d_$]*)$"))
             return true;
         return false;
     }
 
 
-    private void prepareToTranslate(){
-        toBeTranslated=word.toString().replaceAll(",","").replace(" ","").replace("[","").replace("]","");
+    private void prepareToTranslate(String ourWord){
+      //  System.out.println("prepare");
+        toBeTranslated=ourWord;
+        toBeTranslated=ourWord.replace("_"," ");
+     //   System.out.println(toBeTranslated);
+      //  toBeTranslated=word.toString().replaceAll(",","").replace(" ","").replace("[","").replace("]","");
 
         if (isKeyword(toBeTranslated)){
 
+          //  System.out.println("keyword          "+toBeTranslated);
             translated=keywordValue;
-
-
         }
         else if (isDigit(toBeTranslated)){
 
@@ -206,6 +234,7 @@ public class Tokenizer {
 
         else {
             if (identifierIsValid(toBeTranslated)){
+            //    System.out.println("valid "+toBeTranslated);
                 //     System.out.println("id found");
                 if(identifierExists(toBeTranslated)){
                     translated=translatedId;
@@ -215,6 +244,7 @@ public class Tokenizer {
                     try {
 
                         translated = Translator.translate(Main.fromLang, Main.toLang, toBeTranslated);
+                        translated=translated.replace(" ","_");
                         if (Main.fromLang.equals("en")) {
 
                             DictionaryManager.translatedIdentifiers.put(toBeTranslated, translated);
@@ -244,7 +274,6 @@ public class Tokenizer {
         for (Map.Entry<String,String> entry : DictionaryManager.translatedIdentifiers.entrySet()) {
             String key = entry.getKey();
             String value = entry.getValue();
-
 
             switch (Main.fromLang){
                 case "en":

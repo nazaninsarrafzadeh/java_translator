@@ -13,26 +13,31 @@ import java.util.ArrayList;
  */
 public class Main extends JFrame implements ActionListener, KeyListener {
 
-    public static String fromLang = "en";
-    public static String toLang = "fa";
+    public static String fromLang = "fa";
+    public static String toLang = "en";
     static JFrame f;
     static JButton translateButton;
     static JTextArea code, lineNumber;
     static JTextArea error;
+    static JScrollPane scrollPane;
     static boolean okId = true,cmSuspect=false,okStr=true;
     static Token token;
     private int line = 1;
+    static int count=0;
+    private static String[] lines;
 
     Main() {
+
     }
 
     public static void main(String[] args) {
-        Main te = new Main();
+        Main main = new Main();
+
         f = new JFrame("translator");
         f.getContentPane().setBackground(Color.black);
         translateButton = new JButton("ترجمه");
         translateButton.setFont(translateButton.getFont().deriveFont(16f));
-        translateButton.addActionListener(te);
+        translateButton.addActionListener(main);
         translateButton.setBounds(880, 570, 70, 30);
         translateButton.setBackground(new Color(99, 31, 89));
         translateButton.setForeground(Color.BLACK);
@@ -46,13 +51,13 @@ public class Main extends JFrame implements ActionListener, KeyListener {
         lineNumber.setEnabled(false);
         lineNumber.setFont(lineNumber.getFont().deriveFont(16f));
 
-        code = new JTextArea(30, 60);
-        code.addKeyListener(te);
+        code = new JTextArea();
+        code.addKeyListener(main);
         code.setBackground(new Color(37, 37, 37));
-        code.setBounds(50, 30, 800, 500);
+    //    code.setBounds(50, 30, 800, 500);
         code.setFont(code.getFont().deriveFont(16f));
         code.setMargin(new Insets(30, 30, 10, 30));
-        code.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+        code.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
         code.setForeground(new Color(255, 0, 191));
 
         error = new JTextArea(10, 60);
@@ -62,7 +67,14 @@ public class Main extends JFrame implements ActionListener, KeyListener {
         error.setForeground(new Color(255, 25, 25));
         error.setBackground(new Color(26, 26, 26));
 
-        f.add(code);
+        scrollPane=new JScrollPane(code);
+        scrollPane.setBounds(50,30,800,500);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.getVerticalScrollBar().setPreferredSize (new Dimension(0,0));
+      //  scrollPane.setSize(300,500);
+       // f.add(code);
+     //   lines= code.getText().split("\\n");
+        f.add(scrollPane);
         f.add(error);
         f.add(lineNumber);
         f.add(translateButton);
@@ -81,7 +93,7 @@ public class Main extends JFrame implements ActionListener, KeyListener {
         okId = true;
         okStr=true;
         try {
-            String[] lines = code.getText().split("\\n");
+            lines = code.getText().split("\\n");
             ArrayList<String> outputs = new ArrayList<>();
             for (int i = 0; i < lines.length; i++) {
 
@@ -90,30 +102,35 @@ public class Main extends JFrame implements ActionListener, KeyListener {
                 token.setRow(i + 1);
                 outputs.add(tokenizer.tokenize(lines[i]));
                 o += outputs.get(i) + "\n";
-
             }
-            if (okId && okStr) {
-                //   System.out.println("ok ok");
-                if (toLang.equals("fa")) {
-                    code.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
-                }
-                if (toLang.equals("en")) {
-                    code.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
-                }
+            if (okId && okStr && (count%2==0)) {
+                    //   System.out.println("ok ok");
+                    if (toLang.equals("fa")) {
+                        code.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
+                    }
+                    if (toLang.equals("en")) {
+                        code.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+                    }
 
-                code.setText(o);
-                String temp;
-                temp = fromLang;
-                fromLang = toLang;
-                toLang = temp;
+                    code.setText(o);
+                    String temp;
+                    temp = fromLang;
+                    fromLang = toLang;
+                    toLang = temp;
             }
             else {
+
                 if (!okId) {
-                    error.setText("invalid identifier in line: " + token.getRow() + " column: " + token.getCol());
+                    error.setText("invalid identifier");
                 }
                 else if (!okStr){
-                    error.setText("invalid string in line: " + token.getRow() + " column: " + token.getCol());
+                    error.setText("invalid string");
                 }
+                else if (count%2!=0){
+                    error.setText("missing curly bracket");
+                    count=0;
+                }
+
             }
 
 
@@ -130,10 +147,16 @@ public class Main extends JFrame implements ActionListener, KeyListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
+      //  System.out.println(lines.length);
         if (e.getKeyCode() == KeyEvent.VK_ENTER) {
             line++;
+   //     lineNumber.setText("");
+      //  for (int i = 0; i <lines.length ; i++) {
             lineNumber.append("\n");
             lineNumber.append(String.valueOf(line));
+    //    }
+
+
         }
 
     }
