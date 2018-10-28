@@ -1,17 +1,16 @@
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import java.awt.event.*;
 import java.util.ArrayList;
 
 /**
  * Created by nazanin on 10/14/2018.
  */
-public class Main extends JFrame implements ActionListener, KeyListener {
+public class Main extends JFrame implements ActionListener, KeyListener, FocusListener {
 
     public static String fromLang = "fa";
     public static String toLang = "en";
@@ -22,7 +21,7 @@ public class Main extends JFrame implements ActionListener, KeyListener {
     static JScrollPane scrollPane;
     static boolean okId = true,cmSuspect=false,okStr=true;
     static Token token;
-    private int line = 1;
+    private int line = 0;
     static int count=0;
     private static String[] lines;
 
@@ -47,18 +46,48 @@ public class Main extends JFrame implements ActionListener, KeyListener {
         lineNumber.setBackground(new Color(99, 31, 89));
         lineNumber.setForeground(new Color(255, 0, 191));
         lineNumber.setMargin(new Insets(30, 10, 10, 10));
-        lineNumber.setText(String.valueOf(1));
+        //    lineNumber.setText(String.valueOf(1));
         lineNumber.setEnabled(false);
         lineNumber.setFont(lineNumber.getFont().deriveFont(16f));
 
         code = new JTextArea();
         code.addKeyListener(main);
         code.setBackground(new Color(37, 37, 37));
-    //    code.setBounds(50, 30, 800, 500);
+        //    code.setBounds(50, 30, 800, 500);
         code.setFont(code.getFont().deriveFont(16f));
         code.setMargin(new Insets(30, 30, 10, 30));
         code.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
         code.setForeground(new Color(255, 0, 191));
+        code.getDocument().addDocumentListener(new DocumentListener() {
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                StringBuilder numbers=new StringBuilder();
+                for (int i = 0; i <code.getLineCount() ; i++) {
+                    numbers.append(String.valueOf(i+1));
+                    numbers.append("\n");
+
+                }
+                lineNumber.setText(numbers.toString());
+            }
+
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+
+                StringBuilder numbers=new StringBuilder();
+                for (int i = 0; i <code.getLineCount() ; i++) {
+                    numbers.append(String.valueOf(i+1));
+                    numbers.append("\n");
+
+                }
+                lineNumber.setText(numbers.toString());
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent arg0) {
+
+            }
+        });
 
         error = new JTextArea(10, 60);
         error.setBounds(50, 540, 800, 80);
@@ -71,9 +100,9 @@ public class Main extends JFrame implements ActionListener, KeyListener {
         scrollPane.setBounds(50,30,800,500);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         scrollPane.getVerticalScrollBar().setPreferredSize (new Dimension(0,0));
-      //  scrollPane.setSize(300,500);
-       // f.add(code);
-     //   lines= code.getText().split("\\n");
+        //  scrollPane.setSize(300,500);
+        // f.add(code);
+        //   lines= code.getText().split("\\n");
         f.add(scrollPane);
         f.add(error);
         f.add(lineNumber);
@@ -104,19 +133,19 @@ public class Main extends JFrame implements ActionListener, KeyListener {
                 o += outputs.get(i) + "\n";
             }
             if (okId && okStr && (count%2==0)) {
-                    //   System.out.println("ok ok");
-                    if (toLang.equals("fa")) {
-                        code.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
-                    }
-                    if (toLang.equals("en")) {
-                        code.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
-                    }
+                //   System.out.println("ok ok");
+                if (toLang.equals("fa")) {
+                    code.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
+                }
+                if (toLang.equals("en")) {
+                    code.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+                }
 
-                    code.setText(o);
-                    String temp;
-                    temp = fromLang;
-                    fromLang = toLang;
-                    toLang = temp;
+                code.setText(o);
+                String temp;
+                temp = fromLang;
+                fromLang = toLang;
+                toLang = temp;
             }
             else {
 
@@ -147,22 +176,44 @@ public class Main extends JFrame implements ActionListener, KeyListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
-      //  System.out.println(lines.length);
-        if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-            line++;
-   //     lineNumber.setText("");
-      //  for (int i = 0; i <lines.length ; i++) {
-            lineNumber.append("\n");
-            lineNumber.append(String.valueOf(line));
-    //    }
 
-
-        }
+//      //  System.out.println(lines.length);
+//        if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+//            line++;
+//   //     lineNumber.setText("");
+//      //  for (int i = 0; i <lines.length ; i++) {
+//            lineNumber.append("\n");
+//            lineNumber.append(String.valueOf(line));
+//    //    }
+//        StringBuilder numbers=new StringBuilder();
+//        for (int i = 0; i <code.getLineCount() ; i++) {
+//            numbers.append(String.valueOf(i+1));
+//            numbers.append("\n");
+//
+//        }
+//        lineNumber.setText(numbers.toString());
 
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
+
+    }
+
+    @Override
+    public void focusGained(FocusEvent e) {
+//        System.out.println("focus");
+//        StringBuilder numbers=new StringBuilder();
+//        for (int i = 0; i <code.getLineCount() ; i++) {
+//            numbers.append(String.valueOf(i+1));
+//            numbers.append("\n");
+//
+//        }
+//        lineNumber.setText(numbers.toString());
+    }
+
+    @Override
+    public void focusLost(FocusEvent e) {
 
     }
 }
